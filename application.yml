@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: livestream-system
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/livestream_db
+    username: livestream_user
+    password: livestream_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+# WebSocket Configuration
+websocket:
+  endpoint: /ws
+  allowed-origins: "*"
+
+# Application specific configurations
+app:
+  chat:
+    max-message-length: 500
+    message-cache-size: 100
+    message-cache-ttl: 3600 # 1 hour
+  stream:
+    max-viewers-per-stream: 100000
+    viewer-count-update-interval: 5000 # 5 seconds
+
+logging:
+  level:
+    com.livestream: DEBUG
+    org.springframework.web.socket: DEBUG
