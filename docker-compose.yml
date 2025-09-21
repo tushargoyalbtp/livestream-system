@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: livestream-postgres
+    environment:
+      POSTGRES_DB: livestream_db
+      POSTGRES_USER: livestream_user
+      POSTGRES_PASSWORD: livestream_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - livestream-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: livestream-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - livestream-network
+
+  livestream-app:
+    build: .
+    container_name: livestream-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/livestream_db
+      SPRING_REDIS_HOST: redis
+    networks:
+      - livestream-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  livestream-network:
+    driver: bridge
